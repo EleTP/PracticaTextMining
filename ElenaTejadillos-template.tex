@@ -1,0 +1,131 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{acl2015}
+\usepackage{times}
+\usepackage{url}
+\usepackage{latexsym}
+\usepackage[spanish, activeacute]{babel} %Definir idioma español
+\usepackage[utf8]{inputenc} %Codificacion utf-8
+\usepackage{wrapfig}
+\usepackage{graphicx} % figuras
+\graphicspath{{images/}}
+\usepackage{subfigure} % subfiguras
+
+\title{Práctica con PAN-AP 17.\\ 
+ Asignatura Text Mining en Social Media.\\ 
+ Master Big Data}
+
+\author{Elena Tejadillos \\
+  {\tt elena.tejadillos@gmail.com} \\}
+
+\date{11/07/2017}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+  En esta práctica, se parte de un conjunto de tuits que nos proporcionó el profesor de la asignatura. Tomando este conjunto de tuits como fuente inicial, sse debe predecir el sexo de la persona que escribió el tuit y la procedencia del mismo. Para ello, se tratan los textos eliminando acentos. Después, se estudia la lista de palabras más frecuentes. Entre ellas se descartan 9 como "stopwords" y se eliminan de la lista al considerarse que no son relevantes para el cálculo de variedad. Finalmente, con el datasest para training y para test definido, se  género dos 4 datasets, 2 para genero (uno de training y otro de test) y oros 2 para variedad. Se aplicaron 3 diferentes modelos (Suppert Vector Machine, Naive Bayes con validación cruzada y RandomForest). Finalmente nos quedamos con el modelo que mejor "accuracy" genera que es el RandomForest. 
+\end{abstract}
+
+
+\section{Introducción}
+
+\textit{"Author profiling"} es el área de estudio que da la posibilidad de conocer rasgos de una persona a partir de los textos que escribe. En el caso conreto de esta práctica, se quiere averguar el sexo y el país de origen de los autores de un conjunto de tuits. Para realizar el estudio, se han proporcionado un conjunto de tuits. A partir de este conjunto de tuits, se dividirán en dos subconjuntos, uno utilizado para el \textit{"training"} de los modelos y el otro para el \textit{"test"}.\\
+
+Además se extraerá una bolsa de X palabras más frecuentes en esos tuits que se utilizarán en el estudio. Finalmente se aplicarán diversos modelos para averiguar el sexo y el país de origen de los autores de los tuits.
+
+
+\section{Dataset}
+
+Se proporciona la información nesaria para el dataset PAN-AP'17 a través de un fichero zip. Este fichero contiene los tuits de 300 autores distintos: 200 autores para training y 100 autores para test.
+Al descomprimirlo, se generan 2 carpetas llamadas "training" y "test".\\ 
+
+La carpeta "training" se almacenarán 2800 ficheros xml que contiene los tuits a analizar y un fichero "truth.txt" que contiene la lista de títulos de los ficheros xml y el género y páis a que corresponden.\\
+
+La carpeta "test" contiene la misma información pero con tan solo 1400 ficheros xml.
+Estos tuits son los se van a clasificar dependiendo del género (male/female) o en uno de los 7 paises a los que pueden pertenecer:\\
+\begin{tabular}{ l c }
+   Argentina & Chile  \\
+   Colombia & España  \\
+   Mexico & Perú  \\
+   Venezuela
+ \end{tabular}\\
+ 
+Al cargar toda la información en el programa, se tendrán 2 dataset, uno para training y otro para test.
+Estos datasets se han creado de manera que los datos estén balanceados, lo que significa que habrá el mismo número de tuits
+para hombres y para mujeres como para cada uno de los países incluidos en la muestra.
+\begin{figure}[htb]
+\centering
+\includegraphics[width=7.2cm]{DataSetDistribution.PNG}
+\caption{Distribución del Dataset original.}
+\label{fig:PAN-AP'17}
+\end{figure}\\
+
+Una vez que se tiene ambos datasets cargados, se hará una limpieza de datos eliminando los signos de puntuación de los textos de los tuits.
+
+\section{Propuesta del alumno}
+El código de la práctica ya viene preparado para aplicar uno de los métodos más utilizados para estimar la importancia de un término, el conocido sistema Term Frecuency (TF). Está pensado para calcular la importancia de un término en función de su frecuencia de aparición en un documento.\\
+
+Siguiendo este método, se genera una lista de 1000 palabras que son las que aparecen con mayor frequencia en los tuits.\\
+Se decide esetudiar las 100 primeras y se imprime en una gráfica la lista de estas 100 palabras ordenada de mayor a menor frequencia.\\
+
+Se decide excluir alguna de estas palabras a las que se denominarán \textit{stopwords}. Las \textit{stopwords} son palabras vacías , un listado de términos (preposiciones, determinantes, etc.) considerados de escaso valor semántico, que cuando se identifican en un documento se eliminan.\\
+
+La supresión de todos estos términos evita los problemas de ruido y supone un considerable ahorro de recursos, ya que aunque se trata de un número relativamente reducido de elementos con una elevada tasa de frecuencia.\\
+
+Tras un análisis inicial, se decide incluir como \textit{stopwords} las siguientes palabras:
+\begin{itemize}
+  \item La palabra más utiliza y por ello, considerada como con escaso valor semántico \textbf{\textit{"mas"}} 
+  \item Palabras de una sola letra \textbf{\textit{"d"}} o \textbf{\textit{"q"}} (presposión a o abreviación) 
+    \item Onomatopeyas universales (\textbf{\textit{"jajaja"}})
+  \item Nombres propios o genéricos (\textbf{\textit{"Trump"}} o \textbf{\textit{"video"}})
+\end{itemize}
+
+Indicar que la selección de palabras ha sido mas orientada a la variedad y no al género, donde se ha pensado si dichas palabras se dirían de igual manera en todos los paises, y no si se utiliza más los autores masculinos o femeninos.\\
+
+A continuación, se aplican modelos de predicción para calcular el \textit{Accuracy} que se puede obtener con ellos. Los modelos seleccionados son:
+\begin{itemize}
+  \item Support Vector Machine (SVM)
+  \item Naive Bayes con validación cruzada
+  \item Random Forest
+\end{itemize}
+De todos ellos, Naive Bayes es el que peor resultado obtiene, y Random Forest el que obtenemos una mayor a \textit{Accuracy}.\\
+
+Aunque se mejora levemente el umbral  dado por el profesor, se decide aplicar como propuesta de mejora aumentar la bolsa de palabras de 1000 a 2000, consiguiendo de esta forma el Accuracy más alta tanto para la predicción de género que de variedad en todos los modelos.\\
+
+
+\section{Resultados experimentales}
+
+Tras aplicar los 3 métodos elegidos con la bolsa de 2000 palabras, el mejor resultado obtenido tanto para género como para variedad es el generado por Random Forest con las siguientes:
+\begin{itemize}
+  \item Género: 0.7313
+  \item Variedad: 0.8679
+\end{itemize}
+
+Tal y como puede observarse en la siguiente gráfica, los resultados obtenidos por los tres métodos superan, aunque sea levemente, el umbral inicial proporcionado por el profesor, aunque es el Random Forest el que mayor  \textit{Accuracy} alcanza.\\
+\begin{figure}[htb]
+\centering
+\includegraphics[width=7.2cm]{ResultadoObtenido.PNG}
+\caption{Comparativa de resultados obtenidos y umbrales.}
+\label{fig:Resultados}
+\end{figure}
+
+
+\section{Conclusiones y trabajo futuro}
+
+Las concluiones de la práctica ha sido que el mejor método para el análisis que hemos encontrado ha sido Random Forest, aunque eso no ha sido la causa de mejora en el resultado de la predicción, sino el aumento de la bolsa de palabras de 1000 a 2000.
+Eso también ha conllevado a un aumento considerable en el cálculo de los modelos.\\
+
+El estudio que se ha hecho de las palabras ha sido muy básico y muy orientado a la variedad, donde no se ha pensado en ningún momento en el género.
+
+Se podría haber aplicado otro algoritmo como e l de S-stemmer. Este algoritmo es muy simple, y básicamente lo que hace es reducir las formas plurales al singular.
+
+\begin{thebibliography}{}
+
+\bibitem[\protect\citename{Vallez and Pedraza}1972]{Aho:200}
+Mari Vallez y Rafael Pedraza-Jimenez (Universitat Pompeu Fabra)
+\newblock 2007.
+\newblock {\em El Procesamiento del Lenguaje Natural en la Recuperación de Información Textual y áreas afines.
+https://www.upf.edu/hipertextnet/numero-5/pln.html
+
+\end{thebibliography}
+
+\end{document}
